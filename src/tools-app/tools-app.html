@@ -1,0 +1,108 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<dom-module id="tools-app">
+    <template>
+        <style>
+        :host {
+            display: block;
+        }
+        textarea{
+          width: 100%;
+          height: 50%;
+        }
+        </style>
+        <paper-textarea label="SQL" value="{{sql}}"></paper-textarea>
+        <br>
+        <paper-button on-tap="convert" raised class="indigo">Convert</paper-button>
+        <paper-button on-tap="clearPhpArrayStr" class="pink">Clear</paper-button>
+        <pre>[[phpArrayStr]]</pre>
+        <!-- <textarea id="output">[[phpArrayStr]]</textarea> -->
+    </template>
+    <script>
+    class MyApplication extends Polymer.Element {
+        static get is() {
+            return 'tools-app';
+        }
+        static get properties() {
+            return {
+                sql: {
+                    type: String,
+                    value: String(),
+                    notify: true
+                },
+                phpArrayStr: {
+                    type: String,
+                    value: String(),
+                    notify: true
+                }
+            };
+        }
+        convert() {
+            console.log(this.get('sql'));
+            this.clearStr('phpArrayStr');
+            const phpArrayStr = this._doConvert();
+            this.set('phpArrayStr', phpArrayStr);
+            // this._copy2ClipBoard(phpArrayStr);
+        }
+        _copy2ClipBoard(){
+          const output = this.$.output;
+          output.select();
+          document.execCommand("Copy");
+        }
+        _getColumnNameAndData() {
+            const re = /[(](.*?)[)]/g;
+            const arr = this.get('sql').match(re);
+            let columnName = [];
+            let columnData = [];
+            for (let i = 0; i < arr.length; i++) {
+                let row = arr[i];
+                row = row.replace(/`/g, '');
+                row = row.substr(1, row.length - 2);
+                if (i === 0) {
+                    columnName = row.split(',');
+                } else {
+                    columnData.push(row);
+                }
+            }
+            return {
+                columnName,
+                columnData
+            };
+        }
+        _getPhpArrayStr({
+            columnName,
+            columnData
+        }) {
+            let outputStr = String();
+            for (let j = 0; j < columnData.length; j++) {
+                let row = columnData[j];
+                outputStr += '[\n';
+                let rowValue = row.split(', ');
+                for (let i = 0; i < columnName.length; i++) {
+                    outputStr += `'${columnName[i].trim()}' => ${rowValue[i].trim()}`;
+                    if (i < columnName.length - 1) {
+                        outputStr += ',\n';
+                    }
+                }
+                outputStr += '\n]';
+                if (j < columnData.length - 1) {
+                    outputStr += ',';
+                }
+            }
+            return outputStr;
+        }
+        _doConvert() {
+            return this._getPhpArrayStr(this._getColumnNameAndData());
+        }
+        clearStr(name) {
+            this.set(name, String());
+        }
+        clearPhpArrayStr() {
+            this.clearStr('phpArrayStr');
+        }
+    }
+
+    window.customElements.define(MyApplication.is, MyApplication);
+    </script>
+</dom-module>

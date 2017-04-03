@@ -1,0 +1,6 @@
+{
+  "name": "tools",
+  "short_name": "tools",
+  "start_url": "/",
+  "display": "standalone"
+}
