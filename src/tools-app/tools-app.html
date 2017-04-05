@@ -15,7 +15,7 @@
         <paper-textarea label="SQL" value="{{sql}}"></paper-textarea>
         <br>
         <paper-button on-tap="convert" raised class="indigo">Convert</paper-button>
-        <paper-button on-tap="clearPhpArrayStr" class="pink">Clear</paper-button>
+        <paper-button on-tap="clearPhpArrayStr" class="pink">Clear result</paper-button>
         <pre>[[phpArrayStr]]</pre>
         <!-- <textarea id="output">[[phpArrayStr]]</textarea> -->
     </template>
@@ -51,7 +51,7 @@
           document.execCommand("Copy");
         }
         _getColumnNameAndData() {
-            const re = /[(](.*?)[)]/g;
+            const re = /[(](.*)[)]/g;
             const arr = this.get('sql').match(re);
             let columnName = [];
             let columnData = [];
