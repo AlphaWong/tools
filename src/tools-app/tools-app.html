@@ -75,12 +75,22 @@
             columnData
         }) {
             let outputStr = String();
+            const singleQuotaRe = /[\'](.*?[^'\\\\])[\']/g;
+            const singleQuotaHolder = '!@#314159#@!';
             for (let j = 0; j < columnData.length; j++) {
                 let row = columnData[j];
                 outputStr += '[\n';
-                let rowValue = row.split(', ');
+                const singleQuotaItems = row.match(singleQuotaRe);
+                let rowValue = row.replace(singleQuotaRe, singleQuotaHolder);
+                rowValue = rowValue.split(', ');
+                let singleQuotaCounter = 0;
                 for (let i = 0; i < columnName.length; i++) {
-                    outputStr += `'${columnName[i].trim()}' => ${rowValue[i].trim()}`;
+                    if(rowValue[i]===singleQuotaHolder){
+                        outputStr += `'${columnName[i].trim()}' => ${singleQuotaItems[singleQuotaCounter].trim()}`;
+                        singleQuotaCounter += 1;
+                    }else{
+                        outputStr += `'${columnName[i].trim()}' => ${rowValue[i].trim()}`;
+                    }
                     if (i < columnName.length - 1) {
                         outputStr += ',\n';
                     }
